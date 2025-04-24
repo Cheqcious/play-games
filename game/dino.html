@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>小恐龙跳一跳 🦖</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       font-family: system-ui;
       background: black;
       color: white;
-      text-align: center;
       margin: 0;
-      padding: 0;
+      text-align: center;
     }
 
     #game {
@@ -23,8 +18,8 @@
       max-width: 500px;
       height: 40vh;
       max-height: 250px;
-      border: 2px solid white;
       margin: 40px auto;
+      border: 2px solid white;
       overflow: hidden;
       background-image: url("assets/scroll-bg.png");
       background-size: cover;
@@ -63,7 +58,6 @@
     @keyframes jump {
       0%   { bottom: 0px; }
       30%  { bottom: 100px; }
-      35%  { bottom: 120px; }
       70%  { bottom: 100px; }
       100% { bottom: 0px; }
     }
@@ -75,28 +69,23 @@
 
     #message {
       font-size: 24px;
-      margin-top: 10px;
       color: yellow;
+      margin-top: 10px;
     }
 
     #restart {
       display: none;
-      margin-top: 15px;
+      margin-top: 10px;
       padding: 10px 20px;
       font-size: 18px;
       background: white;
       color: black;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
 
-    #restart:hover {
-      background: #ddd;
-    }
-
-    /* 📱 手机专用跳跃按钮 */
-    #mobile-jump {
-      display: none;
+    #jump-button {
       position: fixed;
       bottom: 30px;
       left: 50%;
@@ -108,12 +97,7 @@
       border: none;
       border-radius: 12px;
       z-index: 10;
-    }
-
-    @media (max-width: 768px) {
-      #mobile-jump {
-        display: block;
-      }
+      cursor: pointer;
     }
   </style>
 </head>
@@ -121,17 +105,15 @@
 
 <h1>小恐龙跳一跳 🦖</h1>
 <div id="game">
-  <img id="dino" src="assets/dino.gif" alt="小恐龙" />
+  <img id="dino" src="assets/dino.gif" alt="恐龙" />
 </div>
 
 <div id="score">得分：0</div>
 <div id="message"></div>
 <button id="restart">重新开始</button>
+<button id="jump-button">跳跃</button>
 
-<!-- 📱 跳跃按钮（仅移动设备） -->
-<button id="mobile-jump">跳跃</button>
-
-<!-- 音效播放器 -->
+<!-- 音效 -->
 <audio id="jump-sound" src="assets/jump.mp3"></audio>
 <audio id="hit-sound" src="assets/hit.mp3"></audio>
 <audio id="run-sound" src="assets/run.mp3" loop></audio>
@@ -142,13 +124,17 @@
   const scoreDisplay = document.getElementById("score");
   const message = document.getElementById("message");
   const restartButton = document.getElementById("restart");
-  const jumpBtn = document.getElementById("mobile-jump");
+  const jumpButton = document.getElementById("jump-button");
 
   const jumpSound = document.getElementById("jump-sound");
   const hitSound = document.getElementById("hit-sound");
   const runSound = document.getElementById("run-sound");
 
-  const obstacleImages = ["assets/cactus.png", "assets/rock.png", "assets/bird.png"];
+  const obstacleImages = [
+    "assets/cactus.png",
+    "assets/rock.png",
+    "assets/bird.png"
+  ];
 
   let isJumping = false;
   let score = 0;
@@ -169,15 +155,11 @@
     }
   }
 
-  // 键盘跳跃（电脑）
-  window.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      jump();
-    }
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") jump();
   });
 
-  // 手机点击跳跃
-  jumpBtn.addEventListener("click", jump);
+  jumpButton.addEventListener("click", jump);
 
   function createObstacle() {
     if (gameOver) return;
@@ -189,7 +171,7 @@
     game.appendChild(obstacle);
 
     let left = game.clientWidth;
-    const speed = 6;
+    const speed = 4;
 
     const interval = setInterval(() => {
       if (gameOver) {
