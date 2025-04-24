@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>小恐龙跳一跳 🦖 升级版</title>
+  <style>
+    body {
+      font-family: system-ui;
+      background: #111;
+      color: white;
+      text-align: center;
+      margin: 0;
+    }
+
+    #game {
+      position: relative;
+      width: 500px;
+      height: 200px;
+      margin: 40px auto;
+      overflow: hidden;
+      border: 2px solid white;
+
+      background-image: url("assets/scroll-bg.png");
+      background-size: cover;
+      background-repeat: repeat-x;
+      animation: scroll-bg 10s linear infinite;
+    }
+
+    @keyframes scroll-bg {
+      0% { background-position: 0 0; }
+      100% { background-position: -1000px 0; }
+    }
+
+    #dino {
+      position: absolute;
+      bottom: 0;
+      left: 50px;
+      width: 50px;
+      height: 50px;
+      z-index: 2;
+    }
+
+    .obstacle {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      height: 30px;
+      z-index: 2;
+    }
+
+    .bg-layer {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .cloud {
+      background: url("assets/cloud.gif") no-repeat center/contain;
+      width: 80px;
+      height: 40px;
+      top: 20px;
+      left: 100px;
+    }
+    .cloud2 {
+      background: url("assets/cloud.gif") no-repeat center/contain;
+      width: 80px;
+      height: 40px;
+      top: 20px;
+      left: 250px;
+    }
+
+    .jumpClass {
+      animation: jump 0.6s linear;
+    }
+
+    @keyframes jump {
+      0%   { bottom: 0px; }
+      30%  { bottom: 100px; }
+      50%  { bottom: 120px; }
+      70%  { bottom: 100px; }
+      100% { bottom: 0px; }
+    }
+
+    #score {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    #message {
+      font-size: 26px;
+      margin-top: 10px;
+      color: yellow;
+    }
+
+    #restart {
+      display: none;
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background: white;
+      color: black;
+      border: none;
+      cursor: pointer;
+    }
+
+    #restart:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<h1>小恐龙跳一跳 🦖</h1>
+<div id="game">
+  <div class="bg-layer cloud"></div>
+  <div class2="bg-layer cloud"></div>
+  <img id="dino" src="assets/dino.gif" alt="小恐龙" />
+</div>
+
+<div id="score">得分：0</div>
+<div id="message"></div>
+<button id="restart">重新开始</button>
+
+<!-- 音效 -->
+<audio id="jump-sound" src="assets/jump.mp3"></audio>
+<audio id="hit-sound" src="assets/hit.mp3"></audio>
+<audio id="run-sound" src="assets/run.mp3" loop></audio>
+
+<script>
+  const game = document.getElementById("game");
+  const dino = document.getElementById("dino");
+  const scoreDisplay = document.getElementById("score");
+  const message = document.getElementById("message");
+  const restartButton = document.getElementById("restart");
+
+  const jumpSound = document.getElementById("jump-sound");
+  const hitSound = document.getElementById("hit-sound");
+  const runSound = document.getElementById("run-sound");
+
+  const obstacleImages = ["cactus.png", "rock.png", "bird.png"];
+
+  let isJumping = false;
+  let score = 0;
+  let gameOver = false;
+
+  runSound.play();
+
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !isJumping && !gameOver) {
+      jumpSound.currentTime = 0;
+      jumpSound.play();
+      isJumping = true;
+      dino.classList.add("jumpClass");
+      setTimeout(() => {
+        dino.classList.remove("jumpClass");
+        isJumping = false;
+      }, 500);
+    }
+  });
+
+  function createObstacle() {
+    if (gameOver) return;
+
+    const obstacle = document.createElement("img");
+    obstacle.src = "assets/" + obstacleImages[Math.floor(Math.random() * obstacleImages.length)];
+    obstacle.className = "obstacle";
+    obstacle.style.left = "500px";
+    game.appendChild(obstacle);
+
+    let left = 500;
+    const speed = 6;
+
+    const interval = setInterval(() => {
+      if (gameOver) {
+        clearInterval(interval);
+        obstacle.remove();
+        return;
+      }
+
+      left -= speed;
+      obstacle.style.left = left + "px";
+
+      if (left < -40) {
+        obstacle.remove();
+        score++;
+        scoreDisplay.textContent = "得分：" + score;
+        clearInterval(interval);
+      }
+
+      const dinoTop = parseInt(window.getComputedStyle(dino).bottom);
+      const dinoBox = dino.getBoundingClientRect();
+      const obsBox = obstacle.getBoundingClientRect();
+
+      if (
+        dinoBox.left < obsBox.right &&
+        dinoBox.right > obsBox.left &&
+        dinoTop < 50
+      ) {
+        hitSound.currentTime = 0;
+        hitSound.play();
+        runSound.pause();
+        gameOver = true;
+        message.textContent = "💥 游戏结束！";
+        restartButton.style.display = "inline-block";
+        obstacle.remove();
+        clearInterval(interval);
+      }
+    }, 20);
+  }
+
+  setInterval(() => {
+    if (!gameOver) createObstacle();
+  }, 1500);
+
+  restartButton.addEventListener("click", () => {
+    location.reload();
+  });
+</script>
+
+</body>
+</html>
