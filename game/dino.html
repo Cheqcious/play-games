@@ -57,8 +57,11 @@
 
     @keyframes jump {
       0%   { bottom: 0px; }
+      10%  { bottom: 30px; }
       30%  { bottom: 100px; }
+      50%  { bottom: 120px; }
       70%  { bottom: 100px; }
+      90%  { bottom: 30px; }
       100% { bottom: 0px; }
     }
 
@@ -171,7 +174,7 @@
     game.appendChild(obstacle);
 
     let left = game.clientWidth;
-    const speed = 4;
+    const speed = 6;
 
     const interval = setInterval(() => {
       if (gameOver) {
